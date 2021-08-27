@@ -31,8 +31,34 @@ typedef struct input_struct{
 
 // --------------------------------------------GLOBAL VARIABLES
 char* cur_working_directory;
-
+int dm; // debug mode
 // -------------------------------------------- HELPER FUNCTIONS
+
+// for debugging
+void print_command(command* cmd){
+	printf("Name : %s, n_args : %d \n", cmd->cmd_name, cmd->n_args) ;
+	printf("Arguements : ") ;
+	for(j=0;  j < cmd->n_args; j++){
+		printf("\'%s\' ",cmd->args[j]) ;
+	}
+	printf("\n");
+}
+
+void print_input(input* inp){
+	printf("n_cmds : %d, n_parellel : %d, n_seq : %d, is_valid : %d\n", 
+		  	inp->n_cmds, inp->n_parallel, inp->n_seq, inp->is_valid) ;
+	
+	if(inp->out_redir != NULL){
+		printf("Redirection to \'%s\' \n", inp->out_redir) ;
+	}
+	
+	for(i=0; i < inp->ncmds; i++){
+		print_command( &(inp->cmds[i]) );
+	}
+}
+
+// -------------------------------------------- MAJOR FUNCTIONS
+
 void execute_cd(command* cmd){
 	assert(cmd != NULL);
 	// there should be two arguements "cd" and <directory>
@@ -45,9 +71,7 @@ void execute_cd(command* cmd){
 	
 }
 
-// -------------------------------------------- MAJOR FUNCTIONS
-
-input parseInput(char* inp_line)
+input* parseInput(char* inp_line)
 {
 	// This function will parse the input string into multiple commands or a single command with arguments depending on the delimiter (&&, ##, >, or spaces).
 }
@@ -88,9 +112,17 @@ void executeCommandRedirection()
 int main()
 {
 	// ---------------------- Initial declarations
+	
 	// Initialize globals
 	cur_working_directory = "~" ;
+	dm = 1;  // debug mode
+	
+	// Locals
 	const int max_inp_len = 100 ;
+	
+	//Looping
+	int i,j;
+	
 	
 	char* inp_line = (char*) malloc( max_inp_len * sizeof(char)) ;
 	int bytes_read;
@@ -107,40 +139,48 @@ int main()
 		// accept input with 'getline()'
 		bytes_read = getline(&inp_line, max_inp_len, stdin) ;
 		
+		if(dm) printf("Bytes Read : %d, inp_line : \'%s\' \n", bytes_read, inp_line) ;
+		
 		// Parse input with 'strsep()' for different symbols (&&, ##, >) and for spaces.
-		input inp = parseInput();
+		input* inp = parseInput();
+		
+		if(dm){
+			// print debug info
+			printf("Input Parsed As : \n");
+			print_input(inp) ;
+		}
 		
 		// Check if not valid
-		if(inp.is_valid == 0){
+		if(inp->is_valid == 0){
 			// invalid command
 			printf("Shell: Incorrect command\n");
 			continue;
 		}
 		
 		// Check for empty command
-		if(inp.n_cmds == 0){
+		if(inp->n_cmds == 0){
 			printf("\n");
 			continue;
 		}
 		
 		// Check for exit command
-		if(	inp.n_cmds == 1 && 
-		   	inp.cmds[0].n_args == 1 &&
-		  	strcmp(inp.cmds[0].cmd_name, "exit") == 0)
+		if(	inp->n_cmds == 1 && 
+		   	inp->cmds[0].n_args == 1 &&
+		  	strcmp(inp->cmds[0].cmd_name, "exit") == 0)
 		{
 			// if user types any ohter arguements after exit, it will not work
 			printf("Exiting shell...");
 			break;
 		}
 		
-		if(inp.n_parallel > 0)
+		if(inp->n_parallel > 0)
 			executeParallelCommands();		// This function is invoked when user wants to run multiple commands in parallel (commands separated by &&)
-		else if(inp.n_seq > 0)
+		else if(inp->n_seq > 0)
 			executeSequentialCommands();	// This function is invoked when user wants to run multiple commands sequentially (commands separated by ##)
-		else if(inp.out_redir != NULL)
+		else if(inp->out_redir != NULL)
 			executeCommandRedirection();	// This function is invoked when user wants redirect output of a single command to and output file specificed by user
 		else
-			executeCommand(&inp);		// This function is invoked when user wants to run a single commands
+			executeCommand(inp);		// This function is invoked when user wants to run a single commands
 				
 	}
 	
