@@ -282,7 +282,7 @@ int main()
 		inp_line[bytes_read-1] = '\0' ; 
 		
 		// print debug info
-		if(dm) printf("Bytes Read : %d, inp_len : %d, inp_line : \'%s\' \n", bytes_read, inp_len, inp_line) ;
+		if(dm) printf("Bytes Read : %d, inp_len : %ld, inp_line : \'%s\' \n", bytes_read, inp_len, inp_line) ;
 		
 		// Parse input with 'strsep()' for different symbols (&&, ##, >) and for spaces.
 		input* inp = parseInput(inp_line);
