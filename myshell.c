@@ -244,6 +244,7 @@ void executeCommand(input* inp)
 		// exec. 
 		int ret_val2 = execv( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		
+		if(dm) printf("execv returned in Child\n");
 		// if it returns means there was an error
 		if(ret_val2 == -1){
 			// ???
