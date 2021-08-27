@@ -284,7 +284,6 @@ int main()
 	
 	// Initialize globals
 	cur_working_directory = (char* ) malloc(max_path_len*sizeof(char));
-	getcwd(cur_working_directory, max_path_len) ;
 	dm = 0;  // debug mode
 	
 	// Locals
@@ -302,6 +301,9 @@ int main()
 	// This loop will keep your shell running until user exits.
 	while(1)	
 	{
+		// get cur_working_directory
+		getcwd(cur_working_directory, max_path_len) ;
+		
 		// Print the prompt in format - currentWorkingDirectory$
 		// extra space after $
 		printf("%s$", cur_working_directory) ;
