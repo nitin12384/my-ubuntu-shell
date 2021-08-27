@@ -6,10 +6,10 @@ Enrollement No. - BT19CSE071
 // -------------------------------------------INCLUDES
 
 #include <stdio.h>			// printf(), getline()
-#include <string.h>			// strcmp()
+#include <string.h>			// strcmp(), strsep()
 #include <stdlib.h>			// exit(), malloc()
 #include <unistd.h>			// fork(), getpid(), exec()
-#include <sys/wait.h>		// wait()
+#include <sys/wait.h>			// wait()
 #include <signal.h>			// signal()
 #include <fcntl.h>			// close(), open()
 #include <assert.h>			// assert()
@@ -203,6 +203,14 @@ input* parseInput(char* inp_line)
 		
 		inp->is_valid = 0;
 		return inp;
+	}
+	
+	// for each command
+	// make sure each array of arguements is terminated by NULL
+	
+	for(i=0; i < inp->n_cmds; i++){
+		arg_idx = inp->cmds[i].n_args ;
+		inp->cmds[i].args[ arg_idx ] = NULL ;
 	}
 	
 	
