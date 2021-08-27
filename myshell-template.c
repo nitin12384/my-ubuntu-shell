@@ -11,7 +11,7 @@ Students should keep names of declared variable (and any new functions) self exp
 and add proper comments for every logical step.
 
 Students need to be careful while forking a new process (no unnecessory process creations) 
-or while inserting the single handler code (should be added at the correct places).
+or while inserting the signal handler code (should be added at the correct places).
 
 Finally, keep your filename as myshell.c, do not change this name (not even myshell.cpp, 
 as you not need to use any features for this assignment that are supported by C++ but not by C).
