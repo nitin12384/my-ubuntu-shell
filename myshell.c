@@ -24,7 +24,7 @@ typedef struct input_struct{
 	int n_cmds;
 	int is_parallel; 	// 0 if no parallel commands
 	int is_seq;		// 0 if no seq commands
-	char* out_redir 	// NULL if no output redirection
+	char* out_redir;	// NULL if no output redirection
 	int is_valid;
 } input;
 
@@ -35,20 +35,24 @@ int dm; // debug mode
 const int max_words = 20;
 const int max_cmds = 10;
 const int max_args = 10;
+const int max_word_len = 20;
 
 // -------------------------------------------- HELPER FUNCTIONS
 
 // for debugging
 void print_command(command* cmd){
+	int i; // loop variable
+	
 	printf("Name : %s, n_args : %d \n", cmd->args[0], cmd->n_args) ;
 	printf("Arguements : ") ;
-	for(j=0;  j < cmd->n_args; j++){
+	for(i=0;  i < cmd->n_args; i++){
 		printf("\'%s\' ",cmd->args[j]) ;
 	}
 	printf("\n");
 }
 
 void print_input(input* inp){
+	int i;  // loop variable
 	printf("n_cmds : %d, is_parellel : %d, is_seq : %d, is_valid : %d\n", 
 		  	inp->n_cmds, inp->is_parallel, inp->is_seq, inp->is_valid) ;
 	
@@ -56,7 +60,7 @@ void print_input(input* inp){
 		printf("Redirection to \'%s\' \n", inp->out_redir) ;
 	}
 	
-	for(i=0; i < inp->ncmds; i++){
+	for(i=0; i < inp->n_cmds; i++){
 		print_command( &(inp->cmds[i]) );
 	}
 }
@@ -64,7 +68,7 @@ void print_input(input* inp){
 void init_input(input* inp){
 	inp->n_cmds = 0;
 	inp->cmds = (command*) malloc(max_cmds*sizeof(command)); // array
-	inp->is_paraller = 0;
+	inp->is_parallel = 0;
 	inp->is_seq = 0 ;
 	inp->is_valid = 1;
 	inp->our_redir = NULL ;
@@ -104,7 +108,7 @@ input* parseInput(char* inp_line)
 	if(dm) printf("Started parsing ...\n");
 	
 	n_words = 0;
-	while( (word=strsep(&inp_line, ' ')) != NULL ){
+	while( (word=strsep(&inp_line, max_word_len, ' ')) != NULL ){
 		if(n_words >= max_words){
 			// error
 			// too many words
@@ -134,8 +138,8 @@ input* parseInput(char* inp_line)
 		if(make_new_command){
 			if(dm) printf("Generating a new command.\n");
 			// generate a new command
-			cmd_idx = inp->ncmds;
-			inp->ncmds ++;
+			cmd_idx = inp->n_cmds;
+			inp->n_cmds ++;
 			
 			// allocating space for array of char* 'args' for current command
 			inp->cmds[cmd_idx].args = (char**) malloc(max_args*sizeof(char*)) ;
@@ -197,7 +201,7 @@ input* parseInput(char* inp_line)
 	  ){
 		
 		inp->is_valid = 0;
-		reutrn inp;
+		return inp;
 	}
 	
 	
@@ -268,7 +272,7 @@ int main()
 		printf("%s$ ", cur_working_directory) ;
 		
 		// accept input with 'getline()'
-		bytes_read = getline(&inp_line, max_inp_len, stdin) ;
+		bytes_read = getline(&inp_line, &max_inp_len, stdin) ;
 		
 		if(bytes_read > max_inp_len){
 			// ummm ??????	
@@ -278,7 +282,7 @@ int main()
 		if(dm) printf("Bytes Read : %d, inp_line : \'%s\' \n", bytes_read, inp_line) ;
 		
 		// Parse input with 'strsep()' for different symbols (&&, ##, >) and for spaces.
-		input* inp = parseInput();
+		input* inp = parseInput(inp_line);
 		
 		if(dm){
 			// print debug info
@@ -309,7 +313,7 @@ int main()
 			break;
 		}
 		
-		if(inp->is_paraller)
+		if(inp->is_parallel)
 			executeParallelCommands();		// This function is invoked when user wants to run multiple commands in parallel (commands separated by &&)
 		else if(inp->is_seq)
 			executeSequentialCommands();	// This function is invoked when user wants to run multiple commands sequentially (commands separated by ##)
