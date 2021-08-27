@@ -254,7 +254,7 @@ int main()
 	
 	// Locals
 	const int max_inp_len = 100 ;
-	int inp_len = max_inp_len; // to be used in getline() function 
+	size_t inp_len = max_inp_len; // to be used in getline() function 
 	//Looping
 	int i,j;
 	
