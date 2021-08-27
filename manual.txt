@@ -1,0 +1,6 @@
+getline()
+
+size_t getline(char **lineptr, size_t *n, FILE *stream);
+
+It takes three parameters. The first is a pointer to a block allocated with malloc or calloc which allocates memory for the program when run. This parameter is of type char **; it will contain the line read by getline. The second parameter is a pointer to a variable of type size_t; this parameter specifies the size in bytes of the block of memory pointed to by the first parameter. The third parameter is simply the stream from where to read the line.
+It will also tell us the new size of the block by the value returned in the second parameter.
