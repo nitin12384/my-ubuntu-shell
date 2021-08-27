@@ -276,6 +276,8 @@ int main()
 		// accept input with 'getline()'
 		bytes_read = getline(&inp_line, &inp_len, stdin) ;
 		
+		
+		
 		if(bytes_read > max_inp_len){
 			// ummm ??????	
 		}
@@ -285,6 +287,12 @@ int main()
 		
 		// print debug info
 		if(dm) printf("Bytes Read : %d, inp_len : %ld, inp_line : \'%s\' \n", bytes_read, inp_len, inp_line) ;
+		
+		// special command for debugging
+		if(strcmp(inp_line, "flipdm")){
+			dm = !dm ;
+			continue;
+		}
 		
 		// Parse input with 'strsep()' for different symbols (&&, ##, >) and for spaces.
 		input* inp = parseInput(inp_line);
