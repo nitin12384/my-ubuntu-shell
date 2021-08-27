@@ -250,7 +250,7 @@ int main()
 	
 	// Initialize globals
 	cur_working_directory = "~" ;
-	dm = 1;  // debug mode
+	dm = 0;  // debug mode
 	
 	// Locals
 	const int max_inp_len = 100 ;
@@ -269,7 +269,7 @@ int main()
 	{
 		// Print the prompt in format - currentWorkingDirectory$
 		// extra space after $
-		printf("%s$ ", cur_working_directory) ;
+		printf("%s$", cur_working_directory) ;
 		
 		// accept input with 'getline()'
 		bytes_read = getline(&inp_line, &inp_len, stdin) ;
