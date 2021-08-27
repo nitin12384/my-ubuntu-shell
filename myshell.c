@@ -22,9 +22,9 @@ typedef struct command_struct{
 typedef struct input_struct{
 	command* cmds; // array of commands
 	int n_cmds;
-	int n_parallel; // 0 if no parallel commands
-	int n_seq;		// 0 if no seq commands
-	char* out_redir // NULL if no output redirection
+	int is_parallel; 	// 0 if no parallel commands
+	int is_seq;		// 0 if no seq commands
+	char* out_redir 	// NULL if no output redirection
 	int is_valid;
 } input;
 
@@ -49,8 +49,8 @@ void print_command(command* cmd){
 }
 
 void print_input(input* inp){
-	printf("n_cmds : %d, n_parellel : %d, n_seq : %d, is_valid : %d\n", 
-		  	inp->n_cmds, inp->n_parallel, inp->n_seq, inp->is_valid) ;
+	printf("n_cmds : %d, is_parellel : %d, is_seq : %d, is_valid : %d\n", 
+		  	inp->n_cmds, inp->is_parallel, inp->is_seq, inp->is_valid) ;
 	
 	if(inp->out_redir != NULL){
 		printf("Redirection to \'%s\' \n", inp->out_redir) ;
@@ -64,8 +64,8 @@ void print_input(input* inp){
 void init_input(input* inp){
 	inp->n_cmds = 0;
 	inp->cmds = (command*) malloc(max_cmds*sizeof(command)); // array
-	inp->n_paraller = 0;
-	inp->n_seq = 0 ;
+	inp->is_paraller = 0;
+	inp->is_seq = 0 ;
 	inp->is_valid = 1;
 	inp->our_redir = NULL ;
 }
@@ -90,14 +90,20 @@ input* parseInput(char* inp_line)
 	// single command with arguments depending on the delimiter (&&, ##, >, or spaces).
 	
 	// local variables
-	int n_words = 0;
+	int n_words;
 	char* words[max_words] ;
 	int i; // loop variable
-	int index; // index of current command
+	int cmd_idx; // index of current command
+	int arg_idx; // index of current arguement
+	int make_new_command; // whether to make new command or to add current word as arguements to prev command
+	
+	char* word; // current word 
 	
 	// divide inp_line into words with strsep acc. to ' '
 	
-	char* word;
+	if(dm) printf("Started parsing ...\n");
+	
+	n_words = 0;
 	while( (word=strsep(&inp_line, ' ')) != NULL ){
 		if(n_words >= max_words){
 			// error
@@ -107,6 +113,8 @@ input* parseInput(char* inp_line)
 		words[n_words] = word;
 		n_words++;
 	}
+	
+	if(dm) printf("n_words : %d\n", n_words);
 	
 	input* inp = (input*) malloc( sizeof(input)) ;
 	init_input(inp);
@@ -119,38 +127,79 @@ input* parseInput(char* inp_line)
 	
 	// now check all words for "&&" and "##" and ">"
 	
-	int make_new_command=1;
+	make_new_command=1 ;
 	for(i=0; i<n_words; i++)
 	{
 		if(make_new_command){
 			// generate a new command
+			cmd_idx = inp->ncmds;
 			inp->ncmds ++;
-			index = inp->ncmds-1;
 			
 			// allocating space for array of char* 'args' for current command
-			inp->cmds[index].args = (char**) malloc(max_args*sizeof(char*)) ;
+			inp->cmds[cmd_idx].args = (char**) malloc(max_args*sizeof(char*)) ;
 			
 			// add command name to arguement list
-			inp->cmds[index].args[0] = strdup(words[i]) ;
+			inp->cmds[cmd_idx].args[0] = strdup(words[i]) ;
+			inp->cmds[cmd_idx].n_args = 1 ;
 			
+			// further words will be added to arguement list, not for making new command
+			make_new_command = 0;
 			
 		}
 		else{
-			// add arguements into preveious command
-			
+			// check for command seperators
 			if(strcmp(words[i], "&&")==0){
-				inp->n_parallel ++ ;
+				inp->is_parallel = 1;
+				// after this there should be a new command
+				make_new_command = 1;
+				
 			}
-			if(strcmp(words[i], "##")==0){
-				inp->n_seq ++ ;
+			else if(strcmp(words[i], "##")==0){
+				inp->is_seq = 1;
+				// after this there should be a new command
+				make_new_command = 1;
 			}
-			if(strcmp(words[i], ">")==0){
+			else if(strcmp(words[i], ">")==0){
 				// redirection
-				// i+1th token should be 
-			}	
+				
+				// i+1th token should be last token
+				if(i != n_words-2){
+					inp->is_valid = 0;
+					return inp;
+				}
+				
+				// set out_redir of inp
+				inp->out_redir = strdup(words[i+1]) ;
+				break;
+				
+			}
+			else{
+				// current word is not a command seperator
+				// add this as arguements into preveious command
+				cmd_idx = inp->n_cmds-1;
+				arg_idx = inp->cmds[cmd_idx].n_args ;
+				inp->cmds[cmd_idx].n_args++;
+				inp->cmds[cmd_idx].args[arg_idx] = strdup(words[i]);
+				
+			}
+			
+			
 		}
 		
 	}
+	
+	// check validity
+	if(make_new_command ||  				// a new command was expected, but was not found
+	   inp->is_parallel && inp->is_seq 			// both parallel and sequential instructions
+	  ){
+		
+		inp->is_valid = 0;
+		reutrn inp;
+	}
+	
+	
+	// valid input, finally parsed fully
+	return inp ;
 	
 }
 
@@ -161,8 +210,9 @@ void executeCommand(input* inp)
 	assert(inp->n_cmds==1) ;
 	
 	// This function will fork a new process to execute a command
-	// special case for cd 
-	if(strcmp(inp->cmds[0].cmd_name, "cd") == 0)
+	
+	// special case for command name = "cd" 
+	if(strcmp(inp->cmds[0].args[0], "cd") == 0)
 	{
 		execute_cd( &(inp->cmds[0]) );
 		return;
@@ -249,16 +299,16 @@ int main()
 		// Check for exit command
 		if(	inp->n_cmds == 1 && 
 		   	inp->cmds[0].n_args == 1 &&
-		  	strcmp(inp->cmds[0].cmd_name, "exit") == 0)
+		  	strcmp(inp->cmds[0].args[0], "exit") == 0)
 		{
-			// if user types any ohter arguements after exit, it will not work
+			// if user types any other arguements after exit, it will not work
 			printf("Exiting shell...");
 			break;
 		}
 		
-		if(inp->n_parallel > 0)
+		if(inp->is_paraller)
 			executeParallelCommands();		// This function is invoked when user wants to run multiple commands in parallel (commands separated by &&)
-		else if(inp->n_seq > 0)
+		else if(inp->is_seq)
 			executeSequentialCommands();	// This function is invoked when user wants to run multiple commands sequentially (commands separated by ##)
 		else if(inp->out_redir != NULL)
 			executeCommandRedirection();	// This function is invoked when user wants redirect output of a single command to and output file specificed by user
