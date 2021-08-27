@@ -224,7 +224,7 @@ void execute_cd(command* cmd){
 	// if not print wrong directory message ?? or shell incorrect command
 	// else change the directory
 	
-	DIR* dir = opendir(path);
+	DIR* dir = opendir(new_path);
 	if (dir) {
 	    	/* Directory exists. */
 		int ret_val = chdir(new_path) ;
