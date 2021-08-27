@@ -289,7 +289,7 @@ int main()
 		if(dm) printf("Bytes Read : %d, inp_len : %ld, inp_line : \'%s\' \n", bytes_read, inp_len, inp_line) ;
 		
 		// special command for debugging
-		if(strcmp(inp_line, "flipdm")){
+		if(strcmp(inp_line, "flipdm") == 0){
 			dm = !dm ;
 			printf("Now dm is %d\n", dm);
 			continue;
