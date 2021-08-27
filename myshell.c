@@ -226,12 +226,36 @@ void executeCommand(input* inp)
 	assert(inp->n_cmds==1) ;
 	
 	// This function will fork a new process to execute a command
-	
+	if(dm) printf("executeCommand() called with process : \n");
+	if(dm) print_command( &(inp->cmds[0]) );
 	// special case for command name = "cd" 
 	if(strcmp(inp->cmds[0].args[0], "cd") == 0)
 	{
-		execute_cd( &(inp->cmds[0]) );
-		return;
+		//execute_cd( &(inp->cmds[0]) );
+		//return;
+	}
+	
+	// fork process
+	int ret_val = fork() ;
+	
+	if(ret_val == 0){
+		// child
+		if(dm) printf("In child Process Now...(PId : %d)\n", getpid());
+		// exec. 
+		int ret_val2 = execv( inp->cmds[0].args[0], inp->cmds[0].args ) ;
+		
+		// if it returns means there was an error
+		if(ret_val2 == -1){
+			// ???
+		}
+	}
+	else if(ret_val > 0){
+		// parent
+		if(dm) printf("(Child PID : %d, Parent PID : %d)start of parent process (before wait)...\n", ret_val, getpid());
+		wait(NULL);
+		if(dm) printf("In end of parent process...\n");
+	}
+	else{
 	}
 	
 } 
