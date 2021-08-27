@@ -16,7 +16,6 @@ Enrollement No. - BT19CSE071
 // -------------------------------------------- STRUCTURE DEFINITIONS
 typedef struct command_struct{
 	char** args;
-	char* cmd_name;
 	int n_args;
 }command;
 
@@ -30,13 +29,18 @@ typedef struct input_struct{
 } input;
 
 // --------------------------------------------GLOBAL VARIABLES
+
 char* cur_working_directory;
 int dm; // debug mode
+const int max_words = 20;
+const int max_cmds = 10;
+const int max_args = 10;
+
 // -------------------------------------------- HELPER FUNCTIONS
 
 // for debugging
 void print_command(command* cmd){
-	printf("Name : %s, n_args : %d \n", cmd->cmd_name, cmd->n_args) ;
+	printf("Name : %s, n_args : %d \n", cmd->args[0], cmd->n_args) ;
 	printf("Arguements : ") ;
 	for(j=0;  j < cmd->n_args; j++){
 		printf("\'%s\' ",cmd->args[j]) ;
@@ -57,6 +61,15 @@ void print_input(input* inp){
 	}
 }
 
+void init_input(input* inp){
+	inp->n_cmds = 0;
+	inp->cmds = (command*) malloc(max_cmds*sizeof(command)); // array
+	inp->n_paraller = 0;
+	inp->n_seq = 0 ;
+	inp->is_valid = 1;
+	inp->our_redir = NULL ;
+}
+
 // -------------------------------------------- MAJOR FUNCTIONS
 
 void execute_cd(command* cmd){
@@ -73,7 +86,72 @@ void execute_cd(command* cmd){
 
 input* parseInput(char* inp_line)
 {
-	// This function will parse the input string into multiple commands or a single command with arguments depending on the delimiter (&&, ##, >, or spaces).
+	// This function will parse the input string into multiple commands or a 
+	// single command with arguments depending on the delimiter (&&, ##, >, or spaces).
+	
+	// local variables
+	int n_words = 0;
+	char* words[max_words] ;
+	int i; // loop variable
+	int index; // index of current command
+	
+	// divide inp_line into words with strsep acc. to ' '
+	
+	char* word;
+	while( (word=strsep(&inp_line, ' ')) != NULL ){
+		if(n_words >= max_words){
+			// error
+			// too many words
+			// ????
+		}
+		words[n_words] = word;
+		n_words++;
+	}
+	
+	input* inp = (input*) malloc( sizeof(input)) ;
+	init_input(inp);
+	
+	// n_words should be >0 (empty command has been handled earlier in main() )
+	if(n_words == 0){
+		inp->is_vallid = 0;
+		return inp;
+	}
+	
+	// now check all words for "&&" and "##" and ">"
+	
+	int make_new_command=1;
+	for(i=0; i<n_words; i++)
+	{
+		if(make_new_command){
+			// generate a new command
+			inp->ncmds ++;
+			index = inp->ncmds-1;
+			
+			// allocating space for array of char* 'args' for current command
+			inp->cmds[index].args = (char**) malloc(max_args*sizeof(char*)) ;
+			
+			// add command name to arguement list
+			inp->cmds[index].args[0] = strdup(words[i]) ;
+			
+			
+		}
+		else{
+			// add arguements into preveious command
+			
+			if(strcmp(words[i], "&&")==0){
+				inp->n_parallel ++ ;
+			}
+			if(strcmp(words[i], "##")==0){
+				inp->n_seq ++ ;
+			}
+			if(strcmp(words[i], ">")==0){
+				// redirection
+				// i+1th token should be 
+			}	
+		}
+		
+	}
+	
 }
 
 void executeCommand(input* inp)
@@ -139,6 +217,11 @@ int main()
 		// accept input with 'getline()'
 		bytes_read = getline(&inp_line, max_inp_len, stdin) ;
 		
+		if(bytes_read > max_inp_len){
+			// ummm ??????	
+		}
+		
+		// print debug info
 		if(dm) printf("Bytes Read : %d, inp_line : \'%s\' \n", bytes_read, inp_line) ;
 		
 		// Parse input with 'strsep()' for different symbols (&&, ##, >) and for spaces.
