@@ -13,6 +13,9 @@ Enrollement No. - BT19CSE071
 #include <signal.h>			// signal()
 #include <fcntl.h>			// close(), open()
 #include <assert.h>			// assert()
+#include <dirent.h>			// opendir()
+#include <errno.h>			// errno
+
 // -------------------------------------------- STRUCTURE DEFINITIONS
 typedef struct command_struct{
 	char** args;
@@ -77,17 +80,6 @@ void init_input(input* inp){
 
 // -------------------------------------------- MAJOR FUNCTIONS
 
-void execute_cd(command* cmd){
-	assert(cmd != NULL);
-	// there should be two arguements "cd" and <directory>
-	assert(cmd->n_args == 2);
-	
-	// check if directory exist
-	
-	// if not print wrong directory message ?? or shell incorrect command 
-	
-	
-}
 
 input* parseInput(char* inp_line)
 {
@@ -219,6 +211,36 @@ input* parseInput(char* inp_line)
 	
 }
 
+
+void execute_cd(command* cmd){
+	assert(cmd != NULL);
+	// there should be two arguements "cd" and <directory>
+	assert(cmd->n_args == 2);
+	char* new_path = cmd->args[1] ;
+	
+	if(dm) printf("cd called with path : \'%s\'\n", path) ;
+	
+	// check if directory exist
+	// if not print wrong directory message ?? or shell incorrect command
+	// else change the directory
+	
+	DIR* dir = opendir(path);
+	if (dir) {
+	    	/* Directory exists. */
+		int ret_val = chdir(path) ;
+		if(dm) printf("Directory Exist, ret_val of chdir : %d \n", ret_val) ;
+		closedir(dir);
+	} else if (ENOENT == errno) {
+	    /* Directory does not exist. */
+		if(dm) printf("Directory does not exist");
+		
+		printf("cd error : \'%s\' - no such directory.\n");
+	} else {
+	    /* opendir() failed for some other reason. */
+	}
+	
+}
+
 void executeCommand(input* inp)
 {
 	// checks
@@ -231,8 +253,8 @@ void executeCommand(input* inp)
 	// special case for command name = "cd" 
 	if(strcmp(inp->cmds[0].args[0], "cd") == 0)
 	{
-		//execute_cd( &(inp->cmds[0]) );
-		//return;
+		execute_cd( &(inp->cmds[0]) );
+		return;
 	}
 	
 	// fork process
