@@ -122,6 +122,7 @@ input* parseInput(char* inp_line)
 	// n_words should be >0 (empty command has been handled earlier in main() )
 	if(n_words == 0){
 		inp->is_vallid = 0;
+		if(dm) printf("Invalid Input .. No words found\n");
 		return inp;
 	}
 	
@@ -131,6 +132,7 @@ input* parseInput(char* inp_line)
 	for(i=0; i<n_words; i++)
 	{
 		if(make_new_command){
+			if(dm) printf("Generating a new command.\n");
 			// generate a new command
 			cmd_idx = inp->ncmds;
 			inp->ncmds ++;
@@ -164,6 +166,7 @@ input* parseInput(char* inp_line)
 				
 				// i+1th token should be last token
 				if(i != n_words-2){
+					if(dm) printf("Invalid Input .. wrong position of \'>\' \n");
 					inp->is_valid = 0;
 					return inp;
 				}
