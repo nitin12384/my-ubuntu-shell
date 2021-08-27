@@ -278,6 +278,9 @@ int main()
 			// ummm ??????	
 		}
 		
+		// remove '\n' character in the end of string      !! its a debugging hack
+		inp_line[bytes_read-1] = '\0' ; 
+		
 		// print debug info
 		if(dm) printf("Bytes Read : %d, inp_len : %d, inp_line : \'%s\' \n", bytes_read, inp_len, inp_line) ;
 		
