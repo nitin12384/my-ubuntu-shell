@@ -244,11 +244,11 @@ void executeCommand(input* inp)
 		// exec. 
 		int ret_val2 = execv( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		
-		if(dm) printf("execv returned in Child\n");
+		if(dm) printf("execv returned in Child, ret_val2 : %d\n", ret_val2);
 		// if it returns means there was an error
-		if(ret_val2 == -1){
-			// ???
-		}
+		
+		// have to exit the process
+		exit(0) ;
 	}
 	else if(ret_val > 0){
 		// parent
