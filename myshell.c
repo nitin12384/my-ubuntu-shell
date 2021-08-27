@@ -312,7 +312,7 @@ int main()
 		  	strcmp(inp->cmds[0].args[0], "exit") == 0)
 		{
 			// if user types any other arguements after exit, it will not work
-			printf("Exiting shell...");
+			printf("Exiting shell...\n");
 			break;
 		}
 		
