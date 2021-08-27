@@ -291,6 +291,7 @@ int main()
 		// special command for debugging
 		if(strcmp(inp_line, "flipdm")){
 			dm = !dm ;
+			printf("Now dm is %d\n", dm);
 			continue;
 		}
 		
