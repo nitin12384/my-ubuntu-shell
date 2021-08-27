@@ -46,7 +46,7 @@ void print_command(command* cmd){
 	printf("Name : %s, n_args : %d \n", cmd->args[0], cmd->n_args) ;
 	printf("Arguements : ") ;
 	for(i=0;  i < cmd->n_args; i++){
-		printf("\'%s\' ",cmd->args[j]) ;
+		printf("\'%s\' ",cmd->args[i]) ;
 	}
 	printf("\n");
 }
@@ -71,7 +71,7 @@ void init_input(input* inp){
 	inp->is_parallel = 0;
 	inp->is_seq = 0 ;
 	inp->is_valid = 1;
-	inp->our_redir = NULL ;
+	inp->out_redir = NULL ;
 }
 
 // -------------------------------------------- MAJOR FUNCTIONS
@@ -108,7 +108,7 @@ input* parseInput(char* inp_line)
 	if(dm) printf("Started parsing ...\n");
 	
 	n_words = 0;
-	while( (word=strsep(&inp_line, max_word_len, ' ')) != NULL ){
+	while( (word=strsep(&inp_line, " ")) != NULL ){
 		if(n_words >= max_words){
 			// error
 			// too many words
@@ -125,7 +125,7 @@ input* parseInput(char* inp_line)
 	
 	// n_words should be >0 (empty command has been handled earlier in main() )
 	if(n_words == 0){
-		inp->is_vallid = 0;
+		inp->is_valid = 0;
 		if(dm) printf("Invalid Input .. No words found\n");
 		return inp;
 	}
@@ -254,7 +254,7 @@ int main()
 	
 	// Locals
 	const int max_inp_len = 100 ;
-	
+	int inp_len = max_inp_len; // to be used in getline() function 
 	//Looping
 	int i,j;
 	
@@ -272,14 +272,14 @@ int main()
 		printf("%s$ ", cur_working_directory) ;
 		
 		// accept input with 'getline()'
-		bytes_read = getline(&inp_line, &max_inp_len, stdin) ;
+		bytes_read = getline(&inp_line, &inp_len, stdin) ;
 		
 		if(bytes_read > max_inp_len){
 			// ummm ??????	
 		}
 		
 		// print debug info
-		if(dm) printf("Bytes Read : %d, inp_line : \'%s\' \n", bytes_read, inp_line) ;
+		if(dm) printf("Bytes Read : %d, inp_len : %d, inp_line : \'%s\' \n", bytes_read, inp_len, inp_line) ;
 		
 		// Parse input with 'strsep()' for different symbols (&&, ##, >) and for spaces.
 		input* inp = parseInput(inp_line);
