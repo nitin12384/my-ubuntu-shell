@@ -242,7 +242,7 @@ void executeCommand(input* inp)
 		// child
 		if(dm) printf("In child Process Now...(PId : %d)\n", getpid());
 		// exec. 
-		int ret_val2 = execv( inp->cmds[0].args[0], inp->cmds[0].args ) ;
+		int ret_val2 = execvp( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		
 		if(dm) printf("execv returned in Child, ret_val2 : %d\n", ret_val2);
 		// if it returns means there was an error
