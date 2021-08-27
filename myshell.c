@@ -36,6 +36,7 @@ const int max_words = 20;
 const int max_cmds = 10;
 const int max_args = 10;
 const int max_word_len = 20;
+const int max_path_len = 100;
 
 // -------------------------------------------- HELPER FUNCTIONS
 
@@ -249,7 +250,8 @@ int main()
 	// ---------------------- Initial declarations
 	
 	// Initialize globals
-	cur_working_directory = "~" ;
+	cur_working_directory = (char* ) malloc(max_path_len*sizeof(char));
+	getcwd(cur_working_directory, max_path_len) ;
 	dm = 0;  // debug mode
 	
 	// Locals
