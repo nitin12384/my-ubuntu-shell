@@ -218,7 +218,7 @@ void execute_cd(command* cmd){
 	assert(cmd->n_args == 2);
 	char* new_path = cmd->args[1] ;
 	
-	if(dm) printf("cd called with path : \'%s\'\n", path) ;
+	if(dm) printf("cd called with path : \'%s\'\n", new_path) ;
 	
 	// check if directory exist
 	// if not print wrong directory message ?? or shell incorrect command
@@ -227,14 +227,14 @@ void execute_cd(command* cmd){
 	DIR* dir = opendir(path);
 	if (dir) {
 	    	/* Directory exists. */
-		int ret_val = chdir(path) ;
+		int ret_val = chdir(new_path) ;
 		if(dm) printf("Directory Exist, ret_val of chdir : %d \n", ret_val) ;
 		closedir(dir);
 	} else if (ENOENT == errno) {
 	    /* Directory does not exist. */
 		if(dm) printf("Directory does not exist");
 		
-		printf("cd error : \'%s\' - no such directory.\n");
+		printf("cd error : \'%s\' - no such directory.\n", new_path);
 	} else {
 	    /* opendir() failed for some other reason. */
 	}
