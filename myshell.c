@@ -107,8 +107,15 @@ input* parseInput(char* inp_line)
 			// too many words
 			// ????
 		}
-		words[n_words] = word;
-		n_words++;
+		// if word is "", its not a word
+		if(dm) printf("strsep() gave word : \'%s\' \n", word);
+		if(word[0] != '\0' ){
+			words[n_words] = word;
+			n_words++;	
+		}
+		else{
+			if(dm) printf("word was blank string, not accepted");
+		}
 	}
 	
 	if(dm) printf("n_words : %d\n", n_words);
@@ -116,10 +123,9 @@ input* parseInput(char* inp_line)
 	input* inp = (input*) malloc( sizeof(input)) ;
 	init_input(inp);
 	
-	// n_words should be >0 (empty command has been handled earlier in main() )
+	// n_words can be == 0 
 	if(n_words == 0){
-		inp->is_valid = 0;
-		if(dm) printf("Invalid Input .. No words found\n");
+		// inp->n_cmds is already 0
 		return inp;
 	}
 	
@@ -317,7 +323,7 @@ void executeParallelCommands(input *inp)
 	
 	
 	if(ret_val==0){
-		if(dm) printf("In child Process of main fork (PID : %d)", getpid()) ;
+		if(dm) printf("In child Process of main fork (PID : %d)\n", getpid()) ;
 		pid_for_cmd[0] = getpid() ;
 		cmd_idx = 1;
 		
@@ -367,9 +373,9 @@ void executeParallelCommands(input *inp)
 		
 	}
 	else if(ret_val>0){
-		if(dm) printf("(Before wait)In parent Process of main fork (PID : %d, ret_val of fork() : %d)", getpid(), ret_val) ;
+		if(dm) printf("(Before wait)In parent Process of main fork (PID : %d, ret_val of fork() : %d)\n", getpid(), ret_val) ;
 		wait(NULL) ;
-		if(dm) printf("At the end of parent process. Now returning to main.") ;
+		if(dm) printf("At the end of parent process. Now returning to main.\n") ;
 	}
 	else{
 		if(dm) printf("fork() failed\n");
