@@ -530,3 +530,14 @@ int main()
 	
 	return 0;
 }
+
+
+
+/*
+
+Suggestions
+(Remove 1 level of quotes)
+"hello" parsed as hello
+"'hello'" parsed as 'hello'
+
+*/
