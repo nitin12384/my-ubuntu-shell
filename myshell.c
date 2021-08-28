@@ -305,7 +305,7 @@ void executeCommand(input* inp, int out_redir)
 		// re open stdout
 		ret_val3 = dup2(stdout_save, STDOUT_FILENO);
 		if(ret_val3 == -1){
-			if(dm) print("Error in reopening stdout.\n");
+			if(dm) printf("Error in reopening stdout.\n");
 		}
 		
 		if(dm) printf("execvp returned in Child, ret_val2 : %d\n", ret_val2);
@@ -418,7 +418,7 @@ void executeSequentialCommands(input* inp)
 	for(i=0; i<inp->n_cmds; i++){
 		// execute first command in inp->cmds array
 		// and then return
-		executeCommand(inp);
+		executeCommand(inp,0);
 		
 		// move the cmds pointer, so that it points to next element now
 		inp->cmds++; 
@@ -428,7 +428,7 @@ void executeSequentialCommands(input* inp)
 void executeCommandRedirection(input* inp)
 {
 	// This function will run a single command with output redirected to an output file specificed by user
-	executeCommand(inp, true);
+	executeCommand(inp, 1);
 	
 }
 
