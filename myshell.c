@@ -253,9 +253,13 @@ void execute_cd(command* cmd){
 	
 }
 
-void executeCommand(input* inp)
+void executeCommand(input* inp, int out_redir)
 {
-	// execute first command in the cmds array 
+	// local- variables
+	int ret_val; // for fork()
+	int ret_val2; // for execvp()
+	int ret_val3; // for dup2()
+	int stdout_save; // to save stdout if call to execvp fails
 	
 	// checks
 	assert(inp != NULL);
@@ -264,6 +268,9 @@ void executeCommand(input* inp)
 	// This function will fork a new process to execute a command
 	if(dm) printf("executeCommand() called .\n");
 	if(dm) print_command( &(inp->cmds[0]) );
+	
+	// execute first command in the cmds array 
+	
 	// special case for command name = "cd" 
 	if(strcmp(inp->cmds[0].args[0], "cd") == 0)
 	{
@@ -272,18 +279,37 @@ void executeCommand(input* inp)
 	}
 	
 	// fork process
-	int ret_val = fork() ;
+	ret_val = fork() ;
 	
 	if(ret_val == 0){
 		// child
 		if(dm) printf("In child Process Now...(PId : %d)\n", getpid());
 		// exec. 
-		int ret_val2 = execvp( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		
-		if(dm) printf("execv returned in Child, ret_val2 : %d\n", ret_val2);
+		// if out_redir, then open other file
+		if(out_redir){
+			assert(inp->out_redir != NULL) ;
+			
+			stdout_save = dup(STDOUT_FILENO) ;
+			if(stdout_save == -1){
+				if(dm) printf("Error in duping stdout\n");
+			}
+			close(STDOUT_FILENO);
+			open(inp->out_redir, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
+		}
 		
+		ret_val2 = execvp( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		// if it returns means there was an error
 		// incorrect command probably
+		
+		// re open stdout
+		ret_val3 = dup2(stdout_save, STDOUT_FILENO);
+		if(ret_val3 == -1){
+			if(dm) print("Error in reopening stdout.\n");
+		}
+		
+		if(dm) printf("execvp returned in Child, ret_val2 : %d\n", ret_val2);
+		
 		printf("Shell: Incorrect command\n");
 		
 		// end the child process
@@ -360,7 +386,7 @@ void executeParallelCommands(input *inp)
 				ret_val3 = execvp( inp->cmds[i].args[0], inp->cmds[i].args ) ;
 				
 				// in case if it returned
-				if(dm) printf("execv returned in Child, ret_val3 : %d\n", ret_val3);
+				if(dm) printf("execvp returned in Child, ret_val3 : %d\n", ret_val3);
 				// if it returns means there was an error
 				// incorrect command probably
 				printf("Shell: Incorrect command\n");
@@ -402,6 +428,8 @@ void executeSequentialCommands(input* inp)
 void executeCommandRedirection(input* inp)
 {
 	// This function will run a single command with output redirected to an output file specificed by user
+	executeCommand(inp, true);
+	
 }
 
 // -------------------------------------------- MAIN FUNCTION
@@ -496,7 +524,7 @@ int main()
 		else if(inp->out_redir != NULL)
 			executeCommandRedirection(inp);	// This function is invoked when user wants redirect output of a single command to and output file specificed by user
 		else
-			executeCommand(inp);		// This function is invoked when user wants to run a single commands
+			executeCommand(inp, 0);		// This function is invoked when user wants to run a single commands
 				
 	}
 	
