@@ -114,7 +114,7 @@ input* parseInput(char* inp_line)
 			n_words++;	
 		}
 		else{
-			if(dm) printf("word was blank string, not accepted");
+			if(dm) printf("word was blank string, not accepted\n");
 		}
 	}
 	
@@ -477,6 +477,7 @@ int main()
 		// Check for empty command
 		if(inp->n_cmds == 0){
 			printf("\n");
+			if(dm) printf("printed newline once\n");
 			continue;
 		}
 		
