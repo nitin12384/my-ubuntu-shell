@@ -476,8 +476,6 @@ int main()
 		
 		// Check for empty command
 		if(inp->n_cmds == 0){
-			printf("\n");
-			if(dm) printf("printed newline once\n");
 			continue;
 		}
 		
