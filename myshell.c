@@ -229,26 +229,34 @@ void execute_cd(command* cmd){
 	    	/* Directory exists. */
 		int ret_val = chdir(new_path) ;
 		if(dm) printf("Directory Exist, ret_val of chdir : %d \n", ret_val) ;
+		
+		// free dir variable
 		closedir(dir);
-	} else if (ENOENT == errno) {
+	} 
+	else if (ENOENT == errno) {
 	    /* Directory does not exist. */
 		if(dm) printf("Directory does not exist");
 		
 		printf("cd error : \'%s\' - no such directory.\n", new_path);
-	} else {
-	    /* opendir() failed for some other reason. */
+	} 
+	else {
+	    	/* opendir() failed for some other reason. */
+		if(dm) printf("opendir() failed but directory probably exist.\n");
+		
 	}
 	
 }
 
 void executeCommand(input* inp)
 {
+	// execute first command in the cmds array 
+	
 	// checks
 	assert(inp != NULL);
-	assert(inp->n_cmds==1) ;
+	//assert(inp->n_cmds==1) ;
 	
 	// This function will fork a new process to execute a command
-	if(dm) printf("executeCommand() called with process : \n");
+	if(dm) printf("executeCommand() called .\n");
 	if(dm) print_command( &(inp->cmds[0]) );
 	// special case for command name = "cd" 
 	if(strcmp(inp->cmds[0].args[0], "cd") == 0)
@@ -267,9 +275,12 @@ void executeCommand(input* inp)
 		int ret_val2 = execvp( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		
 		if(dm) printf("execv returned in Child, ret_val2 : %d\n", ret_val2);
-		// if it returns means there was an error
 		
-		// have to exit the process
+		// if it returns means there was an error
+		// incorrect command probably
+		printf("Shell: Incorrect command\n");
+		
+		// end the child process
 		exit(0) ;
 	}
 	else if(ret_val > 0){
@@ -279,21 +290,37 @@ void executeCommand(input* inp)
 		if(dm) printf("In end of parent process...\n");
 	}
 	else{
+		if(dm) printf("Fork failed in executeCommand\n");
 	}
 	
 } 
 
-void executeParallelCommands()
+void executeParallelCommands(input *inp)
 {
 	// This function will run multiple commands in parallel
+	
+	// using fork create inp->n_cmds processes
+	int cmd_idx; // command index for each child process
+	
 }
 
-void executeSequentialCommands()
+void executeSequentialCommands(input* inp)
 {	
-	// This function will run multiple commands in parallel
+	// This function will run multiple commands in sequence
+	// we can use multiple calls to executeCommand() function
+	int i;
+	
+	for(i=0; i<inp->n_cmds; i++){
+		// execute first command in inp->cmds array
+		// and then return
+		executeCommand(inp);
+		
+		// move the cmds pointer, so that it points to next element now
+		inp->cmds++; 
+	}
 }
 
-void executeCommandRedirection()
+void executeCommandRedirection(input* inp)
 {
 	// This function will run a single command with output redirected to an output file specificed by user
 }
@@ -385,11 +412,11 @@ int main()
 		}
 		
 		if(inp->is_parallel)
-			executeParallelCommands();		// This function is invoked when user wants to run multiple commands in parallel (commands separated by &&)
+			executeParallelCommands(inp);		// This function is invoked when user wants to run multiple commands in parallel (commands separated by &&)
 		else if(inp->is_seq)
-			executeSequentialCommands();	// This function is invoked when user wants to run multiple commands sequentially (commands separated by ##)
+			executeSequentialCommands(inp);	// This function is invoked when user wants to run multiple commands sequentially (commands separated by ##)
 		else if(inp->out_redir != NULL)
-			executeCommandRedirection();	// This function is invoked when user wants redirect output of a single command to and output file specificed by user
+			executeCommandRedirection(inp);	// This function is invoked when user wants redirect output of a single command to and output file specificed by user
 		else
 			executeCommand(inp);		// This function is invoked when user wants to run a single commands
 				
