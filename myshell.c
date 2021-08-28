@@ -299,8 +299,78 @@ void executeParallelCommands(input *inp)
 {
 	// This function will run multiple commands in parallel
 	
+	if(dm) printf("execute Parallel function called for %d commands.\n", inp->n_cmds) ;
+	
 	// using fork create inp->n_cmds processes
-	int cmd_idx; // command index for each child process
+	int cmd_idx=0; // command index for each child process
+	
+	int* pid_for_cmd = (int*) malloc(inp->n_cmds * sizeof(int)) ;
+	// pid_for_cmd[i] is the pid of child process which will execute ith command.
+	
+	int i; // loop variable
+	int ret_val ;
+	int ret_val2;
+	int ret_val3;
+	
+	// main fork
+	ret_val = fork();
+	
+	
+	if(ret_val==0){
+		if(dm) printf("In child Process of main fork (PID : %d)", getpid()) ;
+		pid_for_cmd[0] = getpid() ;
+		cmd_idx = 1;
+		
+		while(cmd_idx < inp->n_cmds){
+			ret_val2 = fork() ;
+			if(ret_val2 == 0){
+				if(dm) printf("Child process for command %d. (PID : %d)\n", cmd_idx, getpid());
+				pid_for_cmd[cmd_idx] = getpid();
+			}
+			else if(ret_val2 > 0){
+				// no more fork will be called in parent process
+				// child process will call more forks itself
+				
+				if(dm) prinf("Process for command %d. (PID : %d). No more fork now from this process.\n", cmd_idx-1, getpid()) ;
+				break;
+			}
+			else{
+				if(dm) printf("fork() failed\n");
+			}
+		}
+		
+		// All new process are created
+		for(i=0; i<inp->n_cmds; i++){
+			
+			// process with pid == pid_for_cmd[i] will run ith command
+			if(getpid() == pid_for_cmd[i]){
+				// run ith command with execvp
+				if(dm) printf("%dth command will run now (PID : %d)\n", i, getpid()) ;
+				
+				// exec. 
+				ret_val3 = execvp( inp->cmds[i].args[0], inp->cmds[i].args ) ;
+				
+				// in case if it returned
+				if(dm) printf("execv returned in Child, ret_val3 : %d\n", ret_val3);
+				// if it returns means there was an error
+				// incorrect command probably
+				printf("Shell: Incorrect command\n");
+				
+				// end the child process
+				exit(0) ;
+				
+			}
+		}
+		
+	}
+	else if(ret_val>0){
+		if(dm) printf("(Before wait)In parent Process of main fork (PID : %d, ret_val of fork() : )", getpid(), ret_val) ;
+		wait(NULL) ;
+		if(dm) printf("At the end of parent process. Now returning to main.") ;
+	}
+	else{
+		if(dm) printf("fork() failed\n");
+	}
 	
 }
 
