@@ -331,7 +331,7 @@ void executeParallelCommands(input *inp)
 				// no more fork will be called in parent process
 				// child process will call more forks itself
 				
-				if(dm) prinf("Process for command %d. (PID : %d). No more fork now from this process.\n", cmd_idx-1, getpid()) ;
+				if(dm) printf("Process for command %d. (PID : %d). No more fork now from this process.\n", cmd_idx-1, getpid()) ;
 				break;
 			}
 			else{
@@ -364,7 +364,7 @@ void executeParallelCommands(input *inp)
 		
 	}
 	else if(ret_val>0){
-		if(dm) printf("(Before wait)In parent Process of main fork (PID : %d, ret_val of fork() : )", getpid(), ret_val) ;
+		if(dm) printf("(Before wait)In parent Process of main fork (PID : %d, ret_val of fork() : %d)", getpid(), ret_val) ;
 		wait(NULL) ;
 		if(dm) printf("At the end of parent process. Now returning to main.") ;
 	}
