@@ -326,6 +326,8 @@ void executeParallelCommands(input *inp)
 			if(ret_val2 == 0){
 				if(dm) printf("Child process for command %d. (PID : %d)\n", cmd_idx, getpid());
 				pid_for_cmd[cmd_idx] = getpid();
+				
+				cmd_idx++;
 			}
 			else if(ret_val2 > 0){
 				// no more fork will be called in parent process
@@ -336,6 +338,7 @@ void executeParallelCommands(input *inp)
 			}
 			else{
 				if(dm) printf("fork() failed\n");
+				break;
 			}
 		}
 		
