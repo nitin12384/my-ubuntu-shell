@@ -85,17 +85,12 @@ void init_input(input* inp){
 
 void my_handler(int s)
 {
-      	if(dm) printf("Caught signal %d\n",s);
+      	if(dm) printf("Caught signal s = %d\n",s);
 		
 }
 
 void register_handler(){
-	struct sigaction sig_handler;
-	sig_handler.sa_handler = my_handler ;
-	sigemptyset(&sig_handler.sa_mask);
-   	sig_handler.sa_flags = 0;
-
-   	sigaction(SIGINT, &sig_handler, NULL);
+	signal(SIGINT, my_handler) ;
 
 }
 
