@@ -44,6 +44,8 @@ const int max_path_len = 100;
 int cur_process_pid ;
 int cur_process_killed;
 
+int status;
+
 // -------------------------------------------- HELPER FUNCTIONS
 
 // for debugging
@@ -85,7 +87,7 @@ void init_input(input* inp){
 
 void my_handler(int s)
 {
-      	if(dm) printf("Caught signal s = %d\n",s);
+      	status = -1;
 		
 }
 
@@ -460,6 +462,8 @@ void executeCommandRedirection(input* inp)
 
 int main()
 {
+	status = 0;
+	
 	// ---------------------- Initial declarations
 	register_handler() ;
 	
@@ -508,6 +512,12 @@ int main()
 		if(strcmp(inp_line, "flipdm") == 0){
 			dm = !dm ;
 			printf("Now dm is %d\n", dm);
+			continue;
+		}
+		
+		// special command for debugging
+		if(strcmp(inp_line, "status") == 0){
+			printf("Now status is %d\n", status);
 			continue;
 		}
 		
