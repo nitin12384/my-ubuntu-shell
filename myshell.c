@@ -10,7 +10,7 @@ Enrollement No. - BT19CSE071
 #include <stdlib.h>			// exit(), malloc()
 #include <unistd.h>			// fork(), getpid(), execvp(), dup(), dup2(), getcwd()
 #include <sys/wait.h>			// wait()
-#include <signal.h>			// 
+#include <signal.h>			// kill(), signal()
 #include <fcntl.h>			// close(), open()
 #include <assert.h>			// assert()
 #include <dirent.h>			// opendir(), chdir(), closedir()
@@ -89,6 +89,7 @@ static void my_handler(int s)
 {
 	(void)s;
       	status = -1;
+	if(! cur_process_killed) kill(cur_process_pid, 0);
 		
 }
 
