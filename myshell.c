@@ -41,10 +41,6 @@ const int max_args = 10;
 const int max_word_len = 20;
 const int max_path_len = 100;
 
-int cur_process_pid ;
-int cur_process_killed;
-
-static volatile sig_atomic_t status=1;
 
 // -------------------------------------------- HELPER FUNCTIONS
 
@@ -85,27 +81,14 @@ void init_input(input* inp){
 
 // -------------------------------------------- SIGNAL HANDLING FUNCTIONS
 
-static void my_handler(int s)
-{
-	(void)s;
-      	status = -1;
-	if(! cur_process_killed) kill(cur_process_pid, 0);
-		
-}
-static void my_handler2(int s)
-{
-	(void)s;
-      	status = -2;
-	if(dm) printf("caught ctrl + z \n");
-		
-}
 void register_handler(){
-	signal(SIGINT, my_handler) ;
-	signal(SIGTSTP, my_handler2) ;
+	signal(SIGINT, SIGIGN) ;
+	signal(SIGTSTP, SIGIGN) ;
+}
 
-	//struct sigaction act;
-    	//act.sa_handler = my_handler;
-    	//sigaction(SIGINT, &act, NULL);
+void register_handler_dfl(){
+	signal(SIGINT, SIGDFL) ;
+	signal(SIGTSTP, SIGDFL) ;
 }
 
 
@@ -329,9 +312,8 @@ void executeCommand(input* inp, int out_redir)
 			open(inp->out_redir, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
 		}
 		
-		//set current process PID
-		cur_process_pid = getpid();
-		cur_process_killed = 0;
+		//set signalling
+		register_handler_dfl();
 		
 		ret_val2 = execvp( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		// if it returns means there was an error
@@ -471,7 +453,6 @@ void executeCommandRedirection(input* inp)
 
 int main()
 {
-	status = 0;
 	
 	// ---------------------- Initial declarations
 	register_handler() ;
@@ -524,11 +505,6 @@ int main()
 			continue;
 		}
 		
-		// special command for debugging
-		if(strcmp(inp_line, "status") == 0){
-			printf("Now status is %d\n", status);
-			continue;
-		}
 		
 		// Parse input with 'strsep()' for different symbols (&&, ##, >) and for spaces.
 		input* inp = parseInput(inp_line);
