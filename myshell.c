@@ -44,7 +44,7 @@ const int max_path_len = 100;
 int cur_process_pid ;
 int cur_process_killed;
 
-int status;
+static volatile sig_atomic_t status=1;
 
 // -------------------------------------------- HELPER FUNCTIONS
 
@@ -85,18 +85,19 @@ void init_input(input* inp){
 
 // -------------------------------------------- SIGNAL HANDLING FUNCTIONS
 
-void my_handler(int s)
+static void my_handler(int s)
 {
+	(void)s;
       	status = -1;
 		
 }
 
 void register_handler(){
-	//signal(SIGINT, my_handler) ;
+	signal(SIGINT, my_handler) ;
 
-	struct sigaction act;
-    	act.sa_handler = my_handler;
-    	sigaction(SIGINT, &act, NULL);
+	//struct sigaction act;
+    	//act.sa_handler = my_handler;
+    	//sigaction(SIGINT, &act, NULL);
 }
 
 
