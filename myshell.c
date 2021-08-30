@@ -92,10 +92,10 @@ void my_handler(int s)
 void register_handler(){
 	struct sigaction sig_handler;
 	sig_handler.sa_handler = my_handler ;
-	sigemptyset(&sigIntHandler.sa_mask);
-   	sigIntHandler.sa_flags = 0;
+	sigemptyset(&sig_handler.sa_mask);
+   	sig_handler.sa_flags = 0;
 
-   	sigaction(SIGINT, &sigIntHandler, NULL);
+   	sigaction(SIGINT, &sig_handler, NULL);
 
 }
 
