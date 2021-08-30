@@ -90,8 +90,11 @@ void my_handler(int s)
 }
 
 void register_handler(){
-	signal(SIGINT, my_handler) ;
+	//signal(SIGINT, my_handler) ;
 
+	struct sigaction act;
+    	act.sa_handler = my_handler;
+    	sigaction(SIGINT, &act, NULL);
 }
 
 
