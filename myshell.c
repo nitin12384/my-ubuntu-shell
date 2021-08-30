@@ -92,9 +92,16 @@ static void my_handler(int s)
 	if(! cur_process_killed) kill(cur_process_pid, 0);
 		
 }
-
+static void my_handler2(int s)
+{
+	(void)s;
+      	status = -2;
+	if(dm) printf("caught ctrl + z \n");
+		
+}
 void register_handler(){
 	signal(SIGINT, my_handler) ;
+	signal(SIGTSTP, my_handler2) ;
 
 	//struct sigaction act;
     	//act.sa_handler = my_handler;
