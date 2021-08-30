@@ -4,6 +4,10 @@
 #include <unistd.h>
 #include <limits.h>
 #include <errno.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 void interpreter() {
 char input[256];
 int i;
