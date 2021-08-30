@@ -82,13 +82,13 @@ void init_input(input* inp){
 // -------------------------------------------- SIGNAL HANDLING FUNCTIONS
 
 void register_handler(){
-	signal(SIGINT, SIGIGN) ;
-	signal(SIGTSTP, SIGIGN) ;
+	signal(SIGINT, SIG_IGN) ;
+	signal(SIGTSTP, SIG_IGN) ;
 }
 
 void register_handler_dfl(){
-	signal(SIGINT, SIGDFL) ;
-	signal(SIGTSTP, SIGDFL) ;
+	signal(SIGINT, SIG_DFL) ;
+	signal(SIGTSTP, SIG_DFL) ;
 }
 
 
