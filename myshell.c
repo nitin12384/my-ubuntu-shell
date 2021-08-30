@@ -8,12 +8,12 @@ Enrollement No. - BT19CSE071
 #include <stdio.h>			// printf(), getline()
 #include <string.h>			// strcmp(), strsep()
 #include <stdlib.h>			// exit(), malloc()
-#include <unistd.h>			// fork(), getpid(), exec()
+#include <unistd.h>			// fork(), getpid(), execvp(), dup(), dup2(), getcwd()
 #include <sys/wait.h>			// wait()
-#include <signal.h>			// signal()
+#include <signal.h>			// 
 #include <fcntl.h>			// close(), open()
 #include <assert.h>			// assert()
-#include <dirent.h>			// opendir()
+#include <dirent.h>			// opendir(), chdir(), closedir()
 #include <errno.h>			// errno
 
 // -------------------------------------------- STRUCTURE DEFINITIONS
@@ -40,6 +40,9 @@ const int max_cmds = 10;
 const int max_args = 10;
 const int max_word_len = 20;
 const int max_path_len = 100;
+
+int cur_process_pid ;
+int cur_process_killed;
 
 // -------------------------------------------- HELPER FUNCTIONS
 
@@ -77,6 +80,25 @@ void init_input(input* inp){
 	inp->is_valid = 1;
 	inp->out_redir = NULL ;
 }
+
+// -------------------------------------------- SIGNAL HANDLING FUNCTIONS
+
+void my_handler(int s)
+{
+      	if(dm) printf("Caught signal %d\n",s);
+		
+}
+
+void register_handler(){
+	struct sigaction sig_handler;
+	sig_handler.sa_handler = my_handler ;
+	sigemptyset(&sigIntHandler.sa_mask);
+   	sigIntHandler.sa_flags = 0;
+
+   	sigaction(SIGINT, &sigIntHandler, NULL);
+
+}
+
 
 // -------------------------------------------- MAJOR FUNCTIONS
 
@@ -284,7 +306,7 @@ void executeCommand(input* inp, int out_redir)
 	if(ret_val == 0){
 		// child
 		if(dm) printf("In child Process Now...(PId : %d)\n", getpid());
-		// exec. 
+		
 		
 		// if out_redir, then open other file
 		if(out_redir){
@@ -297,6 +319,10 @@ void executeCommand(input* inp, int out_redir)
 			close(STDOUT_FILENO);
 			open(inp->out_redir, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
 		}
+		
+		//set current process PID
+		cur_process_pid = getpid();
+		cur_process_killed = 0;
 		
 		ret_val2 = execvp( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		// if it returns means there was an error
@@ -437,6 +463,7 @@ void executeCommandRedirection(input* inp)
 int main()
 {
 	// ---------------------- Initial declarations
+	register_handler() ;
 	
 	// Initialize globals
 	cur_working_directory = (char* ) malloc(max_path_len*sizeof(char));
