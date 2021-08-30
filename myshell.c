@@ -540,4 +540,6 @@ Suggestions
 "hello" parsed as hello
 "'hello'" parsed as 'hello'
 
+Add garbage handling
+
 */
