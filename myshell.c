@@ -93,7 +93,7 @@ static void my_handler(int s)
 	if(dm) printf("Current PID : %d, killed : %d \n", cur_process_pid, cur_process_killed) ;
 	
 	if(! cur_process_killed){
-		if(dm) printf("Now killing process PID : %d\n", cur_process_pid);
+		if(dm) printf("Now killing process PID : %d (We are in process : %d)\n", cur_process_pid, getpid());
 		kill(cur_process_pid, 0);
 		cur_process_killed = 1 ;
 	}
