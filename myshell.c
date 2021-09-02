@@ -311,6 +311,10 @@ void executeCommand(input* inp, int out_redir)
 	// fork process
 	ret_val = fork() ;
 	
+	//set current process PID
+	cur_process_pid = ret_val;
+	cur_process_killed = 0;
+	
 	if(ret_val == 0){
 		// child
 		if(dm) printf("In child Process Now...(PId : %d)\n", getpid());
@@ -328,9 +332,7 @@ void executeCommand(input* inp, int out_redir)
 			open(inp->out_redir, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
 		}
 		
-		//set current process PID
-		cur_process_pid = getpid();
-		cur_process_killed = 0;
+		
 		
 		ret_val2 = execvp( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		// if it returns means there was an error
@@ -382,6 +384,10 @@ void executeParallelCommands(input *inp)
 	ret_val = fork();
 	
 	
+	//set current process PID
+	cur_process_pid = ret_val;
+	cur_process_killed = 0;
+	
 	if(ret_val==0){
 		if(dm) printf("In child Process of main fork (PID : %d)\n", getpid()) ;
 		pid_for_cmd[0] = getpid() ;
@@ -417,9 +423,6 @@ void executeParallelCommands(input *inp)
 				if(dm) printf("%dth command will run now (PID : %d)\n", i, getpid()) ;
 				
 				// exec. 
-				//set current process PID
-				cur_process_pid = getpid();
-				cur_process_killed = 0;
 				
 				ret_val3 = execvp( inp->cmds[i].args[0], inp->cmds[i].args ) ;
 				
