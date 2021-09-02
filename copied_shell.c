@@ -44,7 +44,7 @@ void interpreter()
     
     //special case
     if(strcmp(input, "exit") == 0){
-        printf("Exiting Shell...")
+        printf("Exiting Shell...");
         exit(0);
     }
     
