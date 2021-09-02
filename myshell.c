@@ -346,7 +346,8 @@ void executeCommand(input* inp, int out_redir)
 		
 		if(dm) printf("execvp returned in Child, ret_val2 : %d\n", ret_val2);
 		
-		printf("Shell: Incorrect command\n");
+		// printf("Shell: Incorrect command\n");  // directly copied
+		printf("Shell: Incorrect command\n"); // not directly coopied form website
 		
 		// end the child process
 		exit(0) ;
