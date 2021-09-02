@@ -90,8 +90,11 @@ static void my_handler(int s)
 	(void)s;
       	status = -s;
 	if(dm) printf("Caught Signal : %d\n", s) ;
-	if(! cur_process_killed) kill(cur_process_pid, 0);
-		
+	if(! cur_process_killed){
+		if(dm) printf("Killed process PID : %d\n", cur_process_pid);
+		kill(cur_process_pid, 0);
+		cur_process_killed = 1 ;
+	}
 }
 void register_handler(){
 	signal(SIGINT, my_handler) ;
@@ -412,6 +415,10 @@ void executeParallelCommands(input *inp)
 				if(dm) printf("%dth command will run now (PID : %d)\n", i, getpid()) ;
 				
 				// exec. 
+				//set current process PID
+				cur_process_pid = getpid();
+				cur_process_killed = 0;
+				
 				ret_val3 = execvp( inp->cmds[i].args[0], inp->cmds[i].args ) ;
 				
 				// in case if it returned
