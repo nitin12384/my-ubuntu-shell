@@ -4,14 +4,13 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2) {
-        fprintf(stderr, "usage: cpu <string>\n");
-        exit(1);
+    char* val = "A" ;
+    if (argc == 2) {
+        val = argv[1] ;
     }
-    char *str = argv[1];
     while (1) {
         sleep(1);
-        printf("%s\n", str);
+        printf("%s\n", val);
     }
     return 0;
 }
