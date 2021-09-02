@@ -82,13 +82,17 @@ void init_input(input* inp){
 // -------------------------------------------- SIGNAL HANDLING FUNCTIONS
 
 void register_handler(){
-	signal(SIGINT, SIG_IGN) ;
-	signal(SIGTSTP, SIG_IGN) ;
+    	signal(SIGINT, SIG_IGN);
+    	signal(SIGTERM, SIG_IGN);
+    	signal(SIGQUIT, SIG_IGN);
+    	signal(SIGTSTP, SIG_IGN);
 }
 
 void register_handler_dfl(){
-	signal(SIGINT, SIG_DFL) ;
-	signal(SIGTSTP, SIG_DFL) ;
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	signal(SIGTSTP, SIG_DFL);
 }
 
 
@@ -398,6 +402,9 @@ void executeParallelCommands(input *inp)
 			if(getpid() == pid_for_cmd[i]){
 				// run ith command with execvp
 				if(dm) printf("%dth command will run now (PID : %d)\n", i, getpid()) ;
+				
+				// signals
+				register_handler_dfl();
 				
 				// exec. 
 				ret_val3 = execvp( inp->cmds[i].args[0], inp->cmds[i].args ) ;
