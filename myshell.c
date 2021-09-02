@@ -338,8 +338,11 @@ void executeCommand(input* inp, int out_redir)
 		// if it returns means there was an error
 		// incorrect command probably
 		
-		// re open stdout
-		ret_val3 = dup2(stdout_save, STDOUT_FILENO);
+		// re open stdout only if it was closed
+		if(out_redir) {
+			ret_val3 = dup2(stdout_save, STDOUT_FILENO);
+		}
+		
 		if(ret_val3 == -1){
 			if(dm) printf("Error in reopening stdout.\n");
 		}
