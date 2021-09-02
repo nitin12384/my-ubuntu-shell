@@ -41,6 +41,10 @@ const int max_args = 10;
 const int max_word_len = 20;
 const int max_path_len = 100;
 
+int cur_process_pid ;
+int cur_process_killed;
+
+static volatile sig_atomic_t status=1;
 
 // -------------------------------------------- HELPER FUNCTIONS
 
@@ -81,18 +85,21 @@ void init_input(input* inp){
 
 // -------------------------------------------- SIGNAL HANDLING FUNCTIONS
 
-void register_handler(){
-    	signal(SIGINT, SIG_IGN);
-    	signal(SIGTERM, SIG_IGN);
-    	signal(SIGQUIT, SIG_IGN);
-    	signal(SIGTSTP, SIG_IGN);
+static void my_handler(int s)
+{
+	(void)s;
+      	status = -s;
+	if(dm) printf("Caught Signal : %d\n", s) ;
+	if(! cur_process_killed) kill(cur_process_pid, 0);
+		
 }
+void register_handler(){
+	signal(SIGINT, my_handler) ;
+	signal(SIGTSTP, my_handler) ;
 
-void register_handler_dfl(){
-	signal(SIGINT, SIG_DFL);
-	signal(SIGTERM, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
-	signal(SIGTSTP, SIG_DFL);
+	//struct sigaction act;
+    	//act.sa_handler = my_handler;
+    	//sigaction(SIGINT, &act, NULL);
 }
 
 
@@ -316,8 +323,9 @@ void executeCommand(input* inp, int out_redir)
 			open(inp->out_redir, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
 		}
 		
-		//set signalling
-		register_handler_dfl();
+		//set current process PID
+		cur_process_pid = getpid();
+		cur_process_killed = 0;
 		
 		ret_val2 = execvp( inp->cmds[0].args[0], inp->cmds[0].args ) ;
 		// if it returns means there was an error
@@ -403,9 +411,6 @@ void executeParallelCommands(input *inp)
 				// run ith command with execvp
 				if(dm) printf("%dth command will run now (PID : %d)\n", i, getpid()) ;
 				
-				// signals
-				register_handler_dfl();
-				
 				// exec. 
 				ret_val3 = execvp( inp->cmds[i].args[0], inp->cmds[i].args ) ;
 				
@@ -460,6 +465,7 @@ void executeCommandRedirection(input* inp)
 
 int main()
 {
+	status = 0;
 	
 	// ---------------------- Initial declarations
 	register_handler() ;
@@ -512,6 +518,11 @@ int main()
 			continue;
 		}
 		
+		// special command for debugging
+		if(strcmp(inp_line, "status") == 0){
+			printf("Now status is %d\n", status);
+			continue;
+		}
 		
 		// Parse input with 'strsep()' for different symbols (&&, ##, >) and for spaces.
 		input* inp = parseInput(inp_line);
