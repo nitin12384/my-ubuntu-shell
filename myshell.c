@@ -90,8 +90,10 @@ static void my_handler(int s)
 	(void)s;
       	status = -s;
 	if(dm) printf("Caught Signal : %d\n", s) ;
+	if(dm) printf("Current PID : %d, killed : %d \n")
+	
 	if(! cur_process_killed){
-		if(dm) printf("Killed process PID : %d\n", cur_process_pid);
+		if(dm) printf("Now killing process PID : %d\n", cur_process_pid);
 		kill(cur_process_pid, 0);
 		cur_process_killed = 1 ;
 	}
